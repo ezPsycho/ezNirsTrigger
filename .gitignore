@@ -1,0 +1,6 @@
+# Deployment files
+/ezNirsTrigger.exe
+
+# Generated content
+/.config
+/data/*.csv
