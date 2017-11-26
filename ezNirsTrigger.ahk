@@ -18,6 +18,7 @@ global wId := "-"
 global gSocket
 global gConnected = 0
 global gTick = 0
+global gCustomFileName = 0
 
 global wNirsLab
 
@@ -144,7 +145,8 @@ ExportFile:
   Gui, Main:ListView, LogList
 
   FormatTime, CurrentDate , , yy-MM-dd HH-mm-ss
-  FileName = %A_ScriptDir%\Data\%CurrentDate%.csv
+  FileName := A_ScriptDir . "\data\" . (gCustomFileName == 0 ? CurrentDate : gCustomFileName) . ".csv" 
+  gCustomFileName = 0
 
   IfExist, %FileName%
     FileDelete, %FileName%
@@ -222,11 +224,21 @@ class ActionSocket extends SocketTCP
     GuiControl, Main:, ConnectButton, &Connect
   }
 
+  clickButton(CommandType, RecvTime)
+  {
+    WinActivate, ahk_id %wNirsLab%
+
+    x := NirsLabBtnClickPosition[CommandType][1]
+    y := NirsLabBtnClickPosition[CommandType][2]
+
+    MouseClick, Left, %x%, %y%, 1, 0
+    Return A_TickCount - RecvTime
+  }
+
   onRecv()
   {
     RecvTime := A_TickCount
     TickTime := recvTime - gTick
-
 
 		this.Buffer .= this.RecvText(,, "CP0")
 		Lines := StrSplit(this.Buffer, "`n", "`r")
@@ -242,7 +254,6 @@ class ActionSocket extends SocketTCP
         CommandType := Command
         RT := this.clickButton(Command, RecvTime)
       }
-      Else
       Else If !RegExMatch(Command, "^LK|UL|EX$|^EX ")
       {
         CommandType := "MK"
@@ -253,26 +264,25 @@ class ActionSocket extends SocketTCP
         RT := ""
       }
 
-      WinActivate, ahk_id %wNirsLab%
-
-      If RegExMatch(Command, "^LK$|^UL$")
+      If (Command == "LK")
       {
-        If (Command == "LK")
-        {
-          Gui, Main:+AlwaysOnTop
-          GuiControl, Main:Choose, MainTab, 2
-        }
-        Else
-        {
-          Gui, Main:-AlwaysOnTop
-        }
+        CommandType := "LK"
+        Gui, Main:+AlwaysOnTop
+        GuiControl, Main:Choose, MainTab, 2
       }
-      Else If (Command == "EX")
+      Else If (Command == "UL")
       {
+        CommandType := "UL"
+        Gui, Main:-AlwaysOnTop
+      }
+      Else If RegExMatch(Command, "^EX$|^EX ")
+      {
+        CommandType := "EX"
+        if RegExMatch(Command, "^EX ")
+        {
+          gCustomFileName := StrSplit(Command, "EX ")[2]
+        }
         GoSub, ExportFile
-      }
-      Else
-      {
       }
 
       Gui, Main:Default
