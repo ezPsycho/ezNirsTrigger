@@ -289,7 +289,8 @@ class ActionSocket extends SocketTCP
 
       ThisIcon := IconIndex[CommandType]
       IconCommand = Icon%ThisIcon%
-      LV_ADD(IconCommand, TickTime, RT, Command)
+      LV_Add(IconCommand, TickTime, RT, Command)
+      LV_Modify(LV_GetCount(), "Vis")
       UnsavedData := 1
     }
   }
