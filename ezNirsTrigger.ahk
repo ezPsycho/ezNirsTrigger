@@ -32,12 +32,8 @@ GoSub, SetWindow
 Return
 
 MainGuiClose:
-  Gosub, CloseProgram
-  IfMsgBox, Cancel
-  {
-    Return
-  }
-ExitApp
+  ExitApp
+Return
 
 OpenServerConfig:
   Gui, Config:+OwnerMain
