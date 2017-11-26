@@ -36,7 +36,7 @@ Gui, Tab, 3
 Gui, Add, Picture, x20 y25  w370 h93, assets\logo.png
 Gui, Add, text   , x20 y120 w375 0x10
 Gui, Add, Picture,        yp+10 w36 h36, assets\icon.png
-Gui, Add, Text   , xp+45  yp-2  , ezNirsTrigger (Beta 1.0.1)
+Gui, Add, Text   , xp+45  yp-2  , ezNirsTrigger (Beta 1.1.0)
 Gui, Add, Text   , xp     yp+17 , Cpoyright 2017 Losses Territory Studio.
 Gui, Add, Text   , xp     yp+17 w310, This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published  by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 ;Gui, Add, Text   , xp     yp+17 , This program is free software: you can redistribute it and/or modify `nit under the terms of the GNU General Public License as published `nby the Free Software Foundation, either version 3 of the License, or `n(at your option) any later version.
