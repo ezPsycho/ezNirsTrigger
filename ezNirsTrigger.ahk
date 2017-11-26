@@ -237,13 +237,20 @@ class ActionSocket extends SocketTCP
       StrPut(Line, &ConvBuf, "CP0")
       Command := StrGet(&ConvBuf, "UTF-8")
 
-      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL|^EX$")
+      If RegExMatch(Command, "^ST|EN|CL|ZR|DR|LK|UL$")
       {
         CommandType := Command
+        RT := this.clickButton(Command, RecvTime)
+      }
+      Else
+      Else If !RegExMatch(Command, "^LK|UL|EX$|^EX ")
+      {
+        CommandType := "MK"
+        RT := this.clickButton("MK", RecvTime)
       }
       Else
       {
-        CommandType := "MK"
+        RT := ""
       }
 
       WinActivate, ahk_id %wNirsLab%
@@ -266,11 +273,6 @@ class ActionSocket extends SocketTCP
       }
       Else
       {
-        x := NirsLabBtnClickPosition[CommandType][1]
-        y := NirsLabBtnClickPosition[CommandType][2]
-
-        MouseClick, Left, %x%, %y%, 1, 0
-        RT := A_TickCount - RecvTime
       }
 
       Gui, Main:Default
