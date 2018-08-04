@@ -229,7 +229,6 @@ class ActionSocket extends SocketTCP
   clickButton(CommandType, RecvTime)
   {
     WinActivate, ahk_id %wNirsLab%
-
     x := NirsLabBtnClickPosition[CommandType][1]
     y := NirsLabBtnClickPosition[CommandType][2]
 
@@ -242,55 +241,51 @@ class ActionSocket extends SocketTCP
     RecvTime := A_TickCount
     TickTime := recvTime - gTick
 
-		this.Buffer .= this.RecvText(,, "CP0")
-		Lines := StrSplit(this.Buffer, "`n", "`r")
-		this.Buffer := Lines.Pop()
-		for Index, Line in Lines
-		{
+    this.Buffer .= this.RecvText(,, "CP0")
+    Lines := StrSplit(this.Buffer, "`n", "`r")
+    this.Buffer := Lines.Pop()
+
+    for Index, Line in Lines
+    {
       VarSetCapacity(ConvBuf, StrPut(Line, "CP0"))
       StrPut(Line, &ConvBuf, "CP0")
       Command := StrGet(&ConvBuf, "UTF-8")
 
-      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL$|^EX|^RS$|^WHO$|^PING$")
+      If RegExMatch(Command, "^ST|EN|CL|ZR|DR|LK|UL$")
       {
         CommandType := Command
         RT := this.clickButton(Command, RecvTime)
       }
-      Else If !RegExMatch(Command, "^LK|UL|EX$|^EX ")
+      Else If !RegExMatch(Command, "^LK|UL|RS|WHO|PING|EX$|^EX ")
       {
         CommandType := "MK"
         RT := this.clickButton("MK", RecvTime)
+      }
+      Else If RegExMatch(Command, "^RS|WHO|PING$")
+      {
+        CommandType := Command
+        RT := ""
       }
       Else
       {
         RT := ""
       }
 
-      WinActivate, ahk_id %wNirsLab%
-
-      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$") 
+      If (Command == "LK")
       {
-        x := NirsLabBtnClickPosition[CommandType][1]
-        y := NirsLabBtnClickPosition[CommandType][2]
-
-        MouseClick, Left, %x%, %y%, 1, 0
-        RT := A_TickCount - RecvTime
-      }
-      Else If (Command == "PING")
-      {
-        gSocket.sendText("PONG")
-      }
-      Else If (Command == "LK")
-      {
+        CommandType := "LK"
         Gui, Main:+AlwaysOnTop
         GuiControl, Main:Choose, MainTab, 2
       }
       Else If (Command == "UL")
       {
+        CommandType := "UL"
         Gui, Main:-AlwaysOnTop
       }
+
       Else If RegExMatch(Command, "^EX$|^EX ")
       {
+        CommandType := "EX"
         if RegExMatch(Command, "^EX ")
         {
           gCustomFileName := StrSplit(Command, "EX ")[2]
@@ -301,8 +296,11 @@ class ActionSocket extends SocketTCP
       {
         If (gConnected = 1)
           gSocket.Disconnect()
-        
         Reload
+      }
+      Else If (Command == "PING")
+      {
+        gSocket.sendText("PONG")
       }
       Else If (Command == "WHO")
       {
