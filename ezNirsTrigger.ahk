@@ -251,17 +251,17 @@ class ActionSocket extends SocketTCP
       StrPut(Line, &ConvBuf, "CP0")
       Command := StrGet(&ConvBuf, "UTF-8")
 
-      If RegExMatch(Command, "^ST|EN|CL|ZR|DR|LK|UL$")
+      If RegExMatch(Command, "^(ST|EN|CL|ZR|DR|LK|UL)$")
       {
         CommandType := Command
         RT := this.clickButton(Command, RecvTime)
       }
-      Else If !RegExMatch(Command, "^LK|UL|RS|WHO|PING|EX$|^EX ")
+      Else If !RegExMatch(Command, "^(LK|UL|RS|WHO|PING|VERIFIED|EX)$|^(EX |!)")
       {
         CommandType := "MK"
         RT := this.clickButton("MK", RecvTime)
       }
-      Else If RegExMatch(Command, "^RS|WHO|PING$")
+      Else If RegExMatch(Command, "^(RS|WHO|PING|VERIFIED)$")
       {
         CommandType := Command
         RT := ""
@@ -287,7 +287,6 @@ class ActionSocket extends SocketTCP
         CommandType := "UL"
         Gui, Main:-AlwaysOnTop
       }
-
       Else If RegExMatch(Command, "^EX$|^EX ")
       {
         CommandType := "EX"
