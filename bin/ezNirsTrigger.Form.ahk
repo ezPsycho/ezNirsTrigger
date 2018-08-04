@@ -1,5 +1,5 @@
-global LogListIconSrc := ["Default", "ST", "EN", "CL", "MK", "ZR", "DR", "LT", "LK", "UL", "EX", "ER", "PING"]
-global IconIndex := {"ST": 2, "EN": 3, "CL": 4, "MK": 5, "ZR": 6, "DR": 7, "LK": 9, "UL": 10, "EX": 11, "ER": 12}
+global LogListIconSrc := ["Default", "ST", "EN", "CL", "MK", "ZR", "DR", "LT", "LK", "UL", "EX", "ER", "PING", "WHO", "RS"]
+global IconIndex := {"ST": 2, "EN": 3, "CL": 4, "MK": 5, "ZR": 6, "DR": 7, "LK": 9, "UL": 10, "EX": 11, "ER": 12, "PING": 13, "WHO": 14, "RS": 15}
 
 Menu, Tray, Icon, assets\Icon.ico
 

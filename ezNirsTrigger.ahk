@@ -245,7 +245,7 @@ class ActionSocket extends SocketTCP
       StrPut(Line, &ConvBuf, "CP0")
       Command := StrGet(&ConvBuf, "UTF-8")
 
-      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL|^EX$")
+      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL$|^EX$|^RS$|^WHO$|^PING$")
       {
         CommandType := Command
       }
@@ -256,7 +256,15 @@ class ActionSocket extends SocketTCP
 
       WinActivate, ahk_id %wNirsLab%
 
-      If RegExMatch(Command, "^LK$|^UL$")
+      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$") 
+      {
+        x := NirsLabBtnClickPosition[CommandType][1]
+        y := NirsLabBtnClickPosition[CommandType][2]
+
+        MouseClick, Left, %x%, %y%, 1, 0
+        RT := A_TickCount - RecvTime
+      }
+      Else If RegExMatch(Command, "^LK$|^UL$")
       {
         If (Command == "LK")
         {
@@ -272,13 +280,20 @@ class ActionSocket extends SocketTCP
       {
         GoSub, ExportFile
       }
-      Else
+      Else If (Command == "RS")
       {
-        x := NirsLabBtnClickPosition[CommandType][1]
-        y := NirsLabBtnClickPosition[CommandType][2]
-
-        MouseClick, Left, %x%, %y%, 1, 0
-        RT := A_TickCount - RecvTime
+        If (gConnected = 1)
+          gSocket.Disconnect()
+        
+        Reload
+      }
+      Else If (Command == "PING")
+      {
+        gSocket.sendText("PONG")
+      }
+      Else If (Command == "WHO")
+      {
+        gSocket.sendText("TP TRG")
       }
 
       Gui, Main:Default
