@@ -1,5 +1,6 @@
 DefaultConfig := { "LAST_SERVER": "127.0.0.1"
-                 , "LAST_PORT":   "2333" }
+                 , "LAST_PORT":   "23333"
+                 , "AUTO_CONNECT": "0" }
 
 global ConfigFileName
 global Config
@@ -9,6 +10,7 @@ Config := MergeConfig(DefaultConfig, ReadConfig())
 
 global sServer := Config["LAST_SERVER"]
 global sPort := Config["LAST_PORT"]
+global sAutoConnect := Config["AUTO_CONNECT"]
 
 ModifyConfig(ReplaceConfig)
 {

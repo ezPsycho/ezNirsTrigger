@@ -29,6 +29,10 @@ global wNirsLab
 OnExit, CloseProgram
 GoSub, SetWindow
 
+If (sAutoConnect == "1") {
+  GoSub, ConnectServer
+}
+
 Return
 
 MainGuiClose:
