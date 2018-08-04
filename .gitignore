@@ -1,5 +1,5 @@
 # Deployment files
-/ezNirsTrigger.exe
+/ezNirsTrigger*.exe
 
 # Generated content
 /.config
