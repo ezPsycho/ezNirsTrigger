@@ -18,6 +18,7 @@ global wId := "-"
 global gSocket
 global gConnected = 0
 global gTick = 0
+global gCustomFileName = 0
 
 global wNirsLab
 
@@ -36,12 +37,8 @@ If (sAutoConnect == "1") {
 Return
 
 MainGuiClose:
-  Gosub, CloseProgram
-  IfMsgBox, Cancel
-  {
-    Return
-  }
-ExitApp
+  ExitApp
+Return
 
 OpenServerConfig:
   Gui, Config:+OwnerMain
@@ -152,12 +149,13 @@ ExportFile:
   Gui, Main:ListView, LogList
 
   FormatTime, CurrentDate , , yy-MM-dd HH-mm-ss
-  FileName = %A_ScriptDir%\Data\%CurrentDate%.csv
+  FileName := A_ScriptDir . "\data\" . (gCustomFileName == 0 ? CurrentDate : gCustomFileName) . ".csv" 
+  gCustomFileName = 0
 
   IfExist, %FileName%
     FileDelete, %FileName%
   
-  Header := ", Time, Delay, Data`r`n"
+  Header := "Time, Delay, Data`r`n"
   FileAppend, %Header%, %FileName%
 
   Loop % LV_GetCount() 
@@ -228,11 +226,21 @@ class ActionSocket extends SocketTCP
     GuiControl, Main:, ConnectButton, &Connect
   }
 
+  clickButton(CommandType, RecvTime)
+  {
+    WinActivate, ahk_id %wNirsLab%
+
+    x := NirsLabBtnClickPosition[CommandType][1]
+    y := NirsLabBtnClickPosition[CommandType][2]
+
+    MouseClick, Left, %x%, %y%, 1, 0
+    Return A_TickCount - RecvTime
+  }
+
   onRecv()
   {
     RecvTime := A_TickCount
     TickTime := recvTime - gTick
-
 
 		this.Buffer .= this.RecvText(,, "CP0")
 		Lines := StrSplit(this.Buffer, "`n", "`r")
@@ -243,13 +251,19 @@ class ActionSocket extends SocketTCP
       StrPut(Line, &ConvBuf, "CP0")
       Command := StrGet(&ConvBuf, "UTF-8")
 
-      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL$|^EX$|^RS$|^WHO$|^PING$")
+      If RegExMatch(Command, "^ST$|^EN$|^CL$|^ZR$|^DR$|^LK$|^UL$|^EX|^RS$|^WHO$|^PING$")
       {
         CommandType := Command
+        RT := this.clickButton(Command, RecvTime)
+      }
+      Else If !RegExMatch(Command, "^LK|UL|EX$|^EX ")
+      {
+        CommandType := "MK"
+        RT := this.clickButton("MK", RecvTime)
       }
       Else
       {
-        CommandType := "MK"
+        RT := ""
       }
 
       WinActivate, ahk_id %wNirsLab%
@@ -262,20 +276,25 @@ class ActionSocket extends SocketTCP
         MouseClick, Left, %x%, %y%, 1, 0
         RT := A_TickCount - RecvTime
       }
-      Else If RegExMatch(Command, "^LK$|^UL$")
+      Else If (Command == "PING")
       {
-        If (Command == "LK")
-        {
-          Gui, Main:+AlwaysOnTop
-          GuiControl, Main:Choose, MainTab, 2
-        }
-        Else
-        {
-          Gui, Main:-AlwaysOnTop
-        }
+        gSocket.sendText("PONG")
       }
-      Else If (Command == "EX")
+      Else If (Command == "LK")
       {
+        Gui, Main:+AlwaysOnTop
+        GuiControl, Main:Choose, MainTab, 2
+      }
+      Else If (Command == "UL")
+      {
+        Gui, Main:-AlwaysOnTop
+      }
+      Else If RegExMatch(Command, "^EX$|^EX ")
+      {
+        if RegExMatch(Command, "^EX ")
+        {
+          gCustomFileName := StrSplit(Command, "EX ")[2]
+        }
         GoSub, ExportFile
       }
       Else If (Command == "RS")
@@ -284,10 +303,6 @@ class ActionSocket extends SocketTCP
           gSocket.Disconnect()
         
         Reload
-      }
-      Else If (Command == "PING")
-      {
-        gSocket.sendText("PONG")
       }
       Else If (Command == "WHO")
       {
@@ -298,7 +313,8 @@ class ActionSocket extends SocketTCP
 
       ThisIcon := IconIndex[CommandType]
       IconCommand = Icon%ThisIcon%
-      LV_ADD(IconCommand, TickTime, RT, Command)
+      LV_Add(IconCommand, TickTime, RT, Command)
+      LV_Modify(LV_GetCount(), "Vis")
       UnsavedData := 1
     }
   }
