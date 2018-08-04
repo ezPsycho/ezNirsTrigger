@@ -217,8 +217,6 @@ class ActionSocket extends SocketTCP
     GuiControl, Main:, Status, assets\connected.png
     GuiControl, Main:Disable, ConfigButton
     GuiControl, Main:, ConnectButton, &Disconnect
-
-    gSocket.sendText("TP trg")
   }
 
   onDisConnected()
