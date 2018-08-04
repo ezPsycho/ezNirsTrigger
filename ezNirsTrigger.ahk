@@ -266,6 +266,11 @@ class ActionSocket extends SocketTCP
         CommandType := Command
         RT := ""
       }
+      Else If RegExMatch(Command, "^!")
+      {
+        CommandType := "ERROR"
+        RT := ""
+      }
       Else
       {
         RT := ""
