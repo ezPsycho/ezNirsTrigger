@@ -73,9 +73,13 @@ ConfirmServerConfig:
 
   sServer := tServer
   sPort := tPort
+  sType := tType
+  sId := tId
 
   NewConfig := { "LAST_SERVER": sServer
-               , "LAST_PORT":   sPort }
+               , "LAST_PORT":   sPort
+               , "CLIENT_TYPE": sType
+               , "CLIENT_ID":   sId }
   ModifyConfig(NewConfig)
   SaveConfig()
 
@@ -256,12 +260,12 @@ class ActionSocket extends SocketTCP
         CommandType := Command
         RT := this.clickButton(Command, RecvTime)
       }
-      Else If !RegExMatch(Command, "^(LK|UL|RS|WHO|PING|VERIFIED|EX)$|^(EX |!)")
+      Else If !RegExMatch(Command, "^(LK|UL|RS|WHO|PING|VERIFIED|REGISTERED|EX)$|^(EX |!)")
       {
         CommandType := "MK"
         RT := this.clickButton("MK", RecvTime)
       }
-      Else If RegExMatch(Command, "^(RS|WHO|PING|VERIFIED)$")
+      Else If RegExMatch(Command, "^(RS|WHO|PING|VERIFIED|REGISTERED)$")
       {
         CommandType := Command
         RT := ""
@@ -308,7 +312,16 @@ class ActionSocket extends SocketTCP
       }
       Else If (Command == "WHO")
       {
-        gSocket.sendText("TP TRG")
+        TypeString := "TP " . sType
+        gSocket.sendText(TypeString)
+      }
+      Else If (Command == "VERIFIED")
+      {
+        If (sId != "")
+        {
+          IdString := "ID " . sId
+          gSocket.sendText(IdString)
+        }
       }
 
       Gui, Main:Default
