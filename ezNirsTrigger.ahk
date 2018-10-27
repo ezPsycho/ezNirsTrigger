@@ -232,11 +232,19 @@ class ActionSocket extends SocketTCP
 
   clickButton(CommandType, RecvTime)
   {
+    WinRestore, ahk_id %wNirsLab%
     WinActivate, ahk_id %wNirsLab%
     x := NirsLabBtnClickPosition[CommandType][1]
     y := NirsLabBtnClickPosition[CommandType][2]
 
     MouseClick, Left, %x%, %y%, 1, 0
+
+    MouseGetPos, cXPos, cYPos 
+
+    Gui, Main:Default
+    LV_Add(1, "-", "-",  "EXPECTED: " . x . ", " . y)
+    LV_Add(1, "-", "-",  "CURRENT: " . cXPos . ", " . cYPos)
+
     Return A_TickCount - RecvTime
   }
 
